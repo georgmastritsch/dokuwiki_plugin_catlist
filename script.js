@@ -7,7 +7,7 @@
  *
  */
 
-function button_add_page (element, ns, useslash, userewrite, sepchar) {
+function button_add_page (element, baseUrl,script, ns, useslash, userewrite, sepchar) {
 	var addPageForm = element.parentNode;
 	addPageForm.innerHTML = "";
 	var addPageLabel = document.createElement('label');
@@ -30,12 +30,12 @@ function button_add_page (element, ns, useslash, userewrite, sepchar) {
 		newPageID = str_replace(' ', sepchar, newPageID);
 		newPageID = newPageID.toLowerCase();
 		if (useslash && userewrite) {
-			newPageID = str_replace(':', '/', newPageID);
+			newPageID = baseUrl + script + str_replace(':', '/', newPageID);
 		}
 		if (userewrite) {
-			newPageURL = '/' + newPageID + '?do=edit';
+			newPageURL = baseUrl + script + '/' + newPageID + '?do=edit';
 		} else {
-			newPageURL = '?id=' + newPageID + '&do=edit';
+			newPageURL = baseUrl + script + '?id=' + newPageID + '&do=edit';
 		}
 		window.location.href = newPageURL;
 	});

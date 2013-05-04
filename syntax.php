@@ -265,7 +265,9 @@ class syntax_plugin_catlist extends DokuWiki_Syntax_Plugin {
 	function _displayAddPageButton (&$renderer, $ns, $displayType) {
 		global $conf;
 		$html = ($displayType == CATLIST_DISPLAY_LIST) ? 'li' : 'span';
-		$renderer->doc .= '<'.$html.' class="catlist_addpage"><button class="button" onclick="button_add_page(this, \''.$ns.'\', '.$conf['useslash'].', '.$conf['userewrite'].', \''.$conf['sepchar'].'\')">'.$this->getLang('addpage').'</button></'.$html.'>';
+		$renderer->doc .= '<'.$html.' class="catlist_addpage"><button
+        class="button" onclick="button_add_page(this,
+        \''.DOKU_URL.'\',\''.DOKU_SCRIPT.'\', \''.$ns.'\', '.$conf['useslash'].', '.$conf['userewrite'].', \''.$conf['sepchar'].'\')">'.$this->getLang('addpage').'</button></'.$html.'>';
 	}
 	
 }
