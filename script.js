@@ -15,10 +15,16 @@ function button_add_page (element, baseUrl,script, ns, useslash, userewrite, sep
 	var addPageInput = document.createElement('input');
 	addPageInput.type = 'text';
 	addPageInput.id = 'catlist_addpage_id';
+	addPageInput.onkeyup = function(e){
+		var key = e.keyCode || e.which;
+		if(key == 13)
+			jQuery('#catlist_addpage_btn').click();
+	};
 	addPageLabel.htmlFor = 'catlist_addpage_id';
 	var addPageValidButton = document.createElement('button');
 	addPageValidButton.className = 'button';
 	addPageValidButton.innerHTML = "Ok";
+	addPageValidButton.id = 'catlist_addpage_btn';
 	jQuery(addPageForm).append(addPageLabel).append(addPageInput).append(addPageValidButton);
 	addPageInput.focus();
 	jQuery(addPageValidButton).click(function(){
