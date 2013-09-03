@@ -51,7 +51,7 @@ class syntax_plugin_catlist extends DokuWiki_Syntax_Plugin {
 		                'exclutype' => 'id', 
 		                'createPageButton' => true, 'createPageButtonEach' => false, 
 		                'head' => true, 'headTitle' => NULL, 'smallHead' => false, 'linkStartHead' => true, 'hn' => 'h1', 
-		                'wantedNS' => '', 'safe' => true);
+		                'wantedNS' => '', 'safe' => true, 'depth' => -1);
 
 		$match = utf8_substr($match, 9, -1).' ';
 		
@@ -94,6 +94,11 @@ class syntax_plugin_catlist extends DokuWiki_Syntax_Plugin {
 			$return['headTitle'] = $found[1];
 			$match = str_replace($found[0], '', $match);
 		}
+    
+    if (preg_match("/-depth([1-9])/i", $match, $found)) {
+			$return['depth'] = $found[1];
+			$match = str_replace($found[0], '', $match);
+		}
 		
 		// Create page button options
 		$this->_checkOption($match, "noAddPageButton", $return['createPageButton'], false);
@@ -133,7 +138,7 @@ class syntax_plugin_catlist extends DokuWiki_Syntax_Plugin {
 		}
 		$cleanNs = implode(':', $cleanNs);
 		$return['wantedNS'] = $cleanNs;
-		
+    
 		return $return;
 	}
 	
@@ -174,7 +179,7 @@ class syntax_plugin_catlist extends DokuWiki_Syntax_Plugin {
 		
 		// Recurse and display
 		if ($data['displayType'] == CATLIST_DISPLAY_LIST) $renderer->doc .= '<ul>';
-		$this->_recurse($renderer, $data, str_replace(':', '/', $data['wantedNS']), $data['wantedNS'], false, false);
+		$this->_recurse($renderer, $data, str_replace(':', '/', $data['wantedNS']), $data['wantedNS'], false, false, $data['depth']);
 		$perm_create = auth_quickaclcheck($id.':*') >= AUTH_CREATE;
 		if ($data['createPageButton'] && $perm_create) $this->_displayAddPageButton($renderer, $data['wantedNS'].':', $data['displayType']);
 		if ($data['displayType'] == CATLIST_DISPLAY_LIST) $renderer->doc .= '</ul>';
@@ -182,7 +187,12 @@ class syntax_plugin_catlist extends DokuWiki_Syntax_Plugin {
 		return TRUE;
 	}
 	
-	function _recurse (&$renderer, $data, $dir, $ns, $excluPages, $excluNS) {
+	function _recurse (&$renderer, $data, $dir, $ns, $excluPages, $excluNS, $depth = -1) {
+    if($depth == 0) {
+      return;
+    }
+    $depth--;
+  
 		$mainPageId = $ns.':';
 		$mainPageExists;
 		resolve_pageid('', $mainPageId, $mainPageExists);
@@ -211,7 +221,7 @@ class syntax_plugin_catlist extends DokuWiki_Syntax_Plugin {
 				if (!$this->_isExcluded($infos, $data['exclutype'], $data['exclunsall']) && $perms >= AUTH_READ) {
 					$exclunspages = $this->_isExcluded($infos, $data['exclutype'], $data['exclunspages']);
 					$exclunsns = $this->_isExcluded($infos, $data['exclutype'], $data['exclunsns']);
-					$this->_recurse($renderer, $data, $dir.'/'.$item, $ns.':'.$item, $exclunspages, $exclunsns);
+					$this->_recurse($renderer, $data, $dir.'/'.$item, $ns.':'.$item, $exclunspages, $exclunsns, $depth);
 				}
 				$this->_displayNSEnd($renderer, $data['displayType'], ($data['createPageButtonEach'] && $perms >= AUTH_CREATE) ? $id.':' : NULL);
 			} else if (!$excluPages) {
@@ -265,9 +275,8 @@ class syntax_plugin_catlist extends DokuWiki_Syntax_Plugin {
 	function _displayAddPageButton (&$renderer, $ns, $displayType) {
 		global $conf;
 		$html = ($displayType == CATLIST_DISPLAY_LIST) ? 'li' : 'span';
-		$renderer->doc .= '<'.$html.' class="catlist_addpage"><button
-        class="button" onclick="button_add_page(this,
-        \''.DOKU_URL.'\',\''.DOKU_SCRIPT.'\', \''.$ns.'\', '.$conf['useslash'].', '.$conf['userewrite'].', \''.$conf['sepchar'].'\')">'.$this->getLang('addpage').'</button></'.$html.'>';
+		$renderer->doc .= '<'.$html.' class="catlist_addpage"><button class="button" onclick="button_add_page(this, \''.DOKU_URL.'\',\''.DOKU_SCRIPT.'\', \''.$ns.'\', '.$conf['useslash'].', '.$conf['userewrite'].', \''.$conf['sepchar'].'\')">'.$this->getLang('addpage').'</button></'.$html.'>';
 	}
 	
 }
+
